@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Until Then: 2nd Anniversary</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-top: #020205;
+            --bg-bot: #10101a;
+            --primary: #ff8fab; /* Soft Pink */
+            --text: #e0e0e0;
+            --ui-bg: rgba(0, 0, 0, 0.85);
+            --ui-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: #000; overflow: hidden; font-family: 'VT323', monospace; 
+            height: 100vh; width: 100vw; user-select: none;
+        }
+
+        /* --- CINEMATIC BARS (Letterboxing) --- */
+        .cine-bar {
+            position: fixed; left: 0; width: 100%; height: 12vh; 
+            background: #000; z-index: 100; transition: transform 2s ease;
+        }
+        .bar-top { top: 0; }
+        .bar-bot { bottom: 0; }
+
+        /* --- THE SCENE --- */
+        #scene {
+            position: relative; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, var(--bg-top), var(--bg-bot));
+            overflow: hidden;
+        }
+
+        /* Layers */
+        .stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 60%;
+            background-image: radial-gradient(white 1px, transparent 1px);
+            background-size: 60px 60px; opacity: 0.3;
+        }
+
+        .city-silhouette {
+            position: absolute; bottom: 30vh; width: 120%; left: -10%; height: 150px;
+            background: #08080f;
+            clip-path: polygon(0% 100%, 5% 60%, 10% 80%, 15% 40%, 20% 70%, 25% 30%, 35% 80%, 45% 20%, 55% 60%, 65% 30%, 75% 80%, 85% 50%, 95% 70%, 100% 100%);
+            z-index: 1;
+        }
+
+        .ground-rail {
+            position: absolute; bottom: 0; width: 100%; height: 35vh;
+            background: linear-gradient(to bottom, #050505, #000);
+            border-top: 2px solid #333; z-index: 10;
+        }
+
+        /* --- THE CHARACTER (Human Silhouette) --- */
+        #hatzuki-char {
+            position: absolute; 
+            bottom: 30vh; /* Naka-patong sa railing, hindi matatakpan */
+            left: 50%; transform: translateX(-50%);
+            width: 80px; height: 160px;
+            z-index: 20; /* Mataas ang Z-index para visible */
+        }
+
+        /* Drawing the Human Shape using CSS */
+        .body-shape {
+            width: 50px; height: 70px; background: #1a1a2e;
+            position: absolute; bottom: 50px; left: 15px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 0 15px rgba(255, 143, 171, 0.2); /* Glow */
+        }
+        .head-shape {
+            width: 30px; height: 35px; background: #1a1a2e;
+            position: absolute; bottom: 125px; left: 25px;
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5);
+        }
+        .legs-shape {
+            width: 18px; height: 50px; background: #111;
+            position: absolute; bottom: 0; left: 18px;
+            box-shadow: 24px 0 0 #111; /* Second leg */
+        }
+        
+        /* The "Rim Light" effect to make it pop */
+        .rim-light {
+            position: absolute; inset: 0; pointer-events: none;
+            filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
+        }
+
+        /* --- UI DIALOGUE --- */
+        #dialogue-container {
+            position: absolute; 
+            bottom: 0; left: 0; width: 100%; height: 30vh; /* Fixed height sa baba */
+            background: var(--ui-bg);
+            border-top: 1px solid var(--ui-border);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; z-index: 200; /* Pinaka-ibabaw */
+            backdrop-filter: blur(5px);
+            opacity: 0; transition: opacity 1s;
+        }
+
+        #name-box {
+            font-family: 'Montserrat', sans-serif; font-weight: 600;
+            color: var(--primary); text-transform: uppercase; letter-spacing: 3px;
+            font-size: 14px; margin-bottom: 10px; align-self: flex-start; margin-left: 5%;
+        }
+
+        #text-box {
+            font-size: 20px; line-height: 1.5; color: var(--text);
+            width: 90%; height: 60%; overflow: hidden;
+        }
+
+        .cursor::after { content: '▋'; animation: blink 1s infinite; color: var(--primary); margin-left: 5px; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- INTRO & OUTRO --- */
+        #intro-screen {
+            position: fixed; inset: 0; background: #000; z-index: 500;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 2s;
+        }
+        .intro-title { font-family: 'Montserrat'; font-weight: 300; letter-spacing: 10px; color: #fff; font-size: 24px; text-align: center; }
+        .tap-hint { margin-top: 50px; font-size: 16px; color: #666; animation: fade 2s infinite; }
+        
+        @keyframes fade { 50% { opacity: 0.3; } }
+
+        /* --- PARTICLES --- */
+        .particle {
+            position: absolute; width: 2px; height: 2px; background: rgba(255,255,255,0.5);
+            animation: fall linear infinite;
+        }
+        @keyframes fall { to { transform: translateY(100vh); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <div class="intro-title">UNTIL THEN<br><span style="font-size: 12px; color: var(--primary); letter-spacing: 5px;">2ND ANNIVERSARY</span></div>
+        <div class="tap-hint">[ TAP SCREEN TO START ]</div>
+    </div>
+
+    <div class="cine-bar bar-top"></div>
+    <div class="cine-bar bar-bot"></div>
+
+    <div id="scene">
+        <div class="stars"></div>
+        <div class="city-silhouette"></div>
+        
+        <div id="hatzuki-char">
+            <div class="rim-light">
+                <div class="head-shape"></div>
+                <div class="body-shape"></div>
+                <div class="legs-shape"></div>
+            </div>
+        </div>
+
+        <div class="ground-rail"></div>
+        
+        <div id="dialogue-container">
+            <div id="name-box">Hatsuki</div>
+            <div id="text-box"></div>
+            <div style="position: absolute; bottom: 10px; right: 20px; font-size: 12px; color: #555;">TAP TO CONTINUE</div>
+        </div>
+    </div>
+
+<script>
+    // --- SCRIPT DATA (LONG VERSION) ---
+    const script = [
+        "Ang lamig ng hangin ngayong gabi... pero sanay na ako.",
+        "Minsan, kapag tumitingin ako sa mga ilaw ng city, napapaisip ako sa layo ng narating natin.",
+        "Dalawang taon na pala, Van. Two years since everything changed.",
+        "Naalala mo pa ba yung February 7, 2024?",
+        "I was just a stranger back then. Isang simpleng 'Hi' lang, pero sobrang lakas ng kaba ko.",
+        "Hindi ko alam kung rereplyan mo ako, o kung may patutunguhan ba 'to.",
+        "Pero naramdaman ko agad eh. May kakaiba sa'yo.",
+        "Kaya nung February 9, sumugal na ako. Sinimulan ko na ang panliligaw.",
+        "Araw-araw, iniisip ko kung worth it ba ako para sa'yo. Takot ako ma-reject.",
+        "Pero pinaramdam mo sa akin na okay lang maging ako.",
+        "And then... February 25, 2024.",
+        "The day you said 'Yes'. The day you officially became mine.",
+        "Hindi naging madali ang lahat, alam ko 'yun.",
+        "We had our fights. May mga araw na hindi tayo nagkakaintindihan. May selosan.",
+        "Pero ang bilib ako sa atin? Hindi tayo sumusuko.",
+        "Kapag may problema, inaayos natin. We fix things immediately.",
+        "Hindi natin hinahayaang lumipas ang gabi na masama ang loob sa isa't isa.",
+        "That's why we lasted this long. Because we choose each other, every single day.",
+        "Thank you, Van. Thank you for staying with me through the chaos.",
+        "Thank you for accepting my flaws and for loving me purely.",
+        "Wala na akong ibang hihilingin pa kundi ang mas marami pang taon kasama ka.",
+        "I promise to keep fixing things with you. I promise to keep holding your hand.",
+        "Happy 2nd Anniversary, My Love.",
+        "I love you, always... until then."
+    ];
+
+    // --- ENGINE ---
+    let step = 0;
+    let isTyping = false;
+    const textBox = document.getElementById('text-box');
+    const nameBox = document.getElementById('name-box');
+    const ui = document.getElementById('dialogue-container');
+    const intro = document.getElementById('intro-screen');
+
+    // Start Sequence
+    intro.addEventListener('click', () => {
+        intro.style.opacity = 0;
+        setTimeout(() => {
+            intro.style.display = 'none';
+            // Start Particles
+            createParticles();
+            // Show UI
+            ui.style.opacity = 1;
+            runScript();
+        }, 1500);
+    });
+
+    // Dialogue Logic
+    function runScript() {
+        if (step >= script.length) {
+            endGame();
+            return;
+        }
+
+        let text = script[step];
+        typeWriter(text);
+    }
+
+    function typeWriter(text) {
+        isTyping = true;
+        textBox.innerHTML = "";
+        textBox.classList.add('cursor');
+        
+        let i = 0;
+        let speed = 40; // Typing speed
+
+        const interval = setInterval(() => {
+            if (i < text.length) {
+                textBox.innerHTML += text.charAt(i);
+                i++;
+            } else {
+                clearInterval(interval);
+                isTyping = false;
+                textBox.classList.remove('cursor');
+            }
+        }, speed);
+    }
+
+    // Interaction (Tap Anywhere)
+    document.body.addEventListener('click', (e) => {
+        // Prevent click during intro or typing
+        if (intro.style.display !== 'none') return;
+        
+        if (!isTyping && ui.style.opacity == 1) {
+            step++;
+            runScript();
+        } else if (isTyping) {
+            // Optional: Instant finish typing if clicked (pwedeng tanggalin kung ayaw mo)
+            // Need complex logic to clear interval, keeping it simple for now.
+        }
+    });
+
+    // End Sequence
+    function endGame() {
+        ui.style.opacity = 0;
+        // Cinematic Bars Close
+        document.querySelector('.bar-top').style.transform = 'translateY(40vh)';
+        document.querySelector('.bar-bot').style.transform = 'translateY(-40vh)';
+        
+        setTimeout(() => {
+            const final = document.createElement('div');
+            final.style.cssText = "position:fixed; inset:0; display:flex; justify-content:center; align-items:center; color: #ff8fab; font-size: 30px; z-index: 1000; font-family: 'Montserrat';";
+            final.innerHTML = "HAPPY ANNIVERSARY<br><span style='font-size:14px; color:white; display:block; margin-top:10px;'>VAN & HATSUKI</span>";
+            final.style.textAlign = "center";
+            document.body.appendChild(final);
+        }, 2000);
+    }
+
+    // Particle System (Rain/Dust)
+    function createParticles() {
+        const scene = document.getElementById('scene');
+        for(let i=0; i<30; i++) {
+            let p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = -10 + 'px';
+            p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            p.style.opacity = Math.random();
+            scene.appendChild(p);
+        }
+    }
+
+</script>
+</body>
+</html>
